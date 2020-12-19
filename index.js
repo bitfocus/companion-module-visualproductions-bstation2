@@ -8,7 +8,7 @@ class instance extends instance_skel {
 
 	constructor(system, id, config) {
 		super(system, id, config)
-
+		this.release_time = 20; // ms to send button release
 		Object.assign(this, {
 			...actions,
 		});
@@ -61,7 +61,44 @@ class instance extends instance_skel {
 
 			// If we get data, thing should be good
 			this.tcp.on('data', (message) => {
-				console.log(message.toString());
+				switch(message.toString()) {
+					case 'core-bu-0=On':
+						this.system.emit('log', 'bstation', 'info', 'Button 1 pressed');
+						if(!!this.config.button1Bank && !!this.config.button1Button) {
+							this.press_button(this.config.button1Bank, this.config.button1Button)
+						}
+						break;
+					case 'core-bu-1=On':
+						this.system.emit('log', 'bstation', 'info', 'Button 2 pressed');
+						if(!!this.config.button2Bank && !!this.config.button2Button) {
+							this.press_button(this.config.button2Bank, this.config.button2Button)
+						}
+						break;
+					case 'core-bu-2=On':
+						this.system.emit('log', 'bstation', 'info', 'Button3 pressed');
+						if(!!this.config.button3Bank && !!this.config.button3Button) {
+							this.press_button(this.config.button3Bank, this.config.button3Button)
+						}
+						break;
+					case 'core-bu-3=On':
+						this.system.emit('log', 'bstation', 'info', 'Button 4 pressed');
+						if(!!this.config.button4Bank && !!this.config.button4Button) {
+							this.press_button(this.config.button4Bank, this.config.button4Button)
+						}
+						break;
+					case 'core-bu-4=On':
+						this.system.emit('log', 'bstation', 'info', 'Button 5 pressed');
+						if(!!this.config.button5Bank && !!this.config.button5Button) {
+							this.press_button(this.config.button5Bank, this.config.button5Button)
+						}
+						break;
+					case 'core-bu-5=On':
+						this.system.emit('log', 'bstation', 'info', 'Button 6 pressed');
+						if(!!this.config.button6Bank && !!this.config.button6Button) {
+							this.press_button(this.config.button6Bank, this.config.button6Button)
+						}
+						break;
+				}
 				this.status(this.STATE_OK);
 			});
 
@@ -95,6 +132,85 @@ class instance extends instance_skel {
 				width: 2,
 				default: 7000,
 				regex: this.REGEX_PORT
+			},
+			{
+				type: 'text',
+				id: 'info',
+				label: 'Information',
+				width: 12,
+				value: `Config which button on the streamdeck you want to control with the B-Station`
+			},
+			{
+				type: 'textinput',
+				id: 'button1Bank',
+				label: 'Button 1 Bank',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button1Button',
+				label: 'Button 1 Button',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button2Bank',
+				label: 'Button 2 Bank',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button2Button',
+				label: 'Button 2 Button',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button3Bank',
+				label: 'Button 3 Bank',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button3Button',
+				label: 'Button 3 Button',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button4Bank',
+				label: 'Button 4 Bank',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button4Button',
+				label: 'Button 4 Button',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button5Bank',
+				label: 'Button 5 Bank',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button5Button',
+				label: 'Button 5 Button',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button6Bank',
+				label: 'Button 6 Bank',
+				width: 2
+			},
+			{
+				type: 'textinput',
+				id: 'button6Button',
+				label: 'Button 6 Button',
+				width: 2
 			}
 		]
 	};
@@ -111,6 +227,19 @@ class instance extends instance_skel {
 
 		debug("destroy", this.id);;
 	};
+
+	press_button(bank, button) {
+		bank = parseInt(bank);
+		button = parseInt(button);
+
+		this.system.emit('log', 'bstation', 'info', `Push button ${bank}.${button}`);
+		this.system.emit('bank_pressed', bank, button, true);
+
+		setTimeout(() => {
+			this.system.emit('bank_pressed', bank, button, false);
+			this.system.emit('log', 'bstation', 'info', `Release button ${bank}.${button}`);
+		}, this.release_time);
+	}
 
 	action(action) {
 		let cmd;

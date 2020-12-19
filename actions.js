@@ -32,7 +32,7 @@ exports.getActions = function () {
 					id: 'onOff',
 					label: 'On or Off',
 					default: 'On',
-					choices: [{ id: '1', label: 'On' }, { id: '2', label: 'Off' }]
+					choices: [{ id: '1', label: 'On' }, { id: '0', label: 'Off' }]
 				}
 			]
 		}
