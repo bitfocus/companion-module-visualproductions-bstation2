@@ -1,0 +1,27 @@
+{
+  "name": "visualproductions-bstation2",
+	"version": "1.0.6",
+	"api_version": "1.0.0",
+	"description": "B-Station control",
+	"keywords": [
+		"Buttons"
+	],
+	"manufacturer": "Visual Productions",
+	"product": "B-Station",
+	"shortname": "B-Station 2",
+ 	"homepage": "https://github.com/bitfocus/companion-module-visualproductions-bstation2#readme",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bitfocus/companion-module-visualproductions-bstation2.git"
+	},
+	"author": "Jeffrey Davidsz <jeffrey.davidsz@vicreo.eu>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bitfocus/companion-module-visualproductions-bstation2/issues"
+	}
+}
+
