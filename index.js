@@ -63,37 +63,37 @@ class instance extends instance_skel {
 			this.tcp.on('data', (message) => {
 				switch(message.toString()) {
 					case 'core-bu-0=On':
-						this.system.emit('log', 'bstation', 'info', 'Button 1 pressed');
+						this.log('info', 'Button 1 pressed');
 						if(!!this.config.button1Bank && !!this.config.button1Button) {
 							this.press_button(this.config.button1Bank, this.config.button1Button)
 						}
 						break;
 					case 'core-bu-1=On':
-						this.system.emit('log', 'bstation', 'info', 'Button 2 pressed');
+						this.log('info', 'Button 2 pressed');
 						if(!!this.config.button2Bank && !!this.config.button2Button) {
 							this.press_button(this.config.button2Bank, this.config.button2Button)
 						}
 						break;
 					case 'core-bu-2=On':
-						this.system.emit('log', 'bstation', 'info', 'Button3 pressed');
+						this.log('info', 'Button3 pressed');
 						if(!!this.config.button3Bank && !!this.config.button3Button) {
 							this.press_button(this.config.button3Bank, this.config.button3Button)
 						}
 						break;
 					case 'core-bu-3=On':
-						this.system.emit('log', 'bstation', 'info', 'Button 4 pressed');
+						this.log('info', 'Button 4 pressed');
 						if(!!this.config.button4Bank && !!this.config.button4Button) {
 							this.press_button(this.config.button4Bank, this.config.button4Button)
 						}
 						break;
 					case 'core-bu-4=On':
-						this.system.emit('log', 'bstation', 'info', 'Button 5 pressed');
+						this.log('info', 'Button 5 pressed');
 						if(!!this.config.button5Bank && !!this.config.button5Button) {
 							this.press_button(this.config.button5Bank, this.config.button5Button)
 						}
 						break;
 					case 'core-bu-5=On':
-						this.system.emit('log', 'bstation', 'info', 'Button 6 pressed');
+						this.log('info', 'Button 6 pressed');
 						if(!!this.config.button6Bank && !!this.config.button6Button) {
 							this.press_button(this.config.button6Bank, this.config.button6Button)
 						}
@@ -232,12 +232,12 @@ class instance extends instance_skel {
 		bank = parseInt(bank);
 		button = parseInt(button);
 
-		this.system.emit('log', 'bstation', 'info', `Push button ${bank}.${button}`);
+		this.log('info', `Push button ${bank}.${button}`);
 		this.system.emit('bank_pressed', bank, button, true);
 
 		setTimeout(() => {
 			this.system.emit('bank_pressed', bank, button, false);
-			this.system.emit('log', 'bstation', 'info', `Release button ${bank}.${button}`);
+			this.log('info', `Release button ${bank}.${button}`);
 		}, this.release_time);
 	}
 
