@@ -1,6 +1,6 @@
 {
-  "name": "visualproductions-bstation2",
-	"version": "1.0.6",
+	"name": "visualproductions-bstation2",
+	"version": "1.0.7",
 	"api_version": "1.0.0",
 	"description": "B-Station control",
 	"keywords": [
@@ -9,7 +9,7 @@
 	"manufacturer": "Visual Productions",
 	"product": "B-Station",
 	"shortname": "B-Station 2",
- 	"homepage": "https://github.com/bitfocus/companion-module-visualproductions-bstation2#readme",
+	"homepage": "https://github.com/bitfocus/companion-module-visualproductions-bstation2#readme",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -24,4 +24,3 @@
 		"url": "https://github.com/bitfocus/companion-module-visualproductions-bstation2/issues"
 	}
 }
-
