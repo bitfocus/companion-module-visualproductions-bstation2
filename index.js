@@ -17,7 +17,7 @@ class instance extends instance_skel {
 	}
 
 	actions(system) {
-		this.setActions(this.getActions());
+		this.setActions(this.getActions(this));
 	}
 
 	updateConfig(config) {

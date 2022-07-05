@@ -1,4 +1,4 @@
-exports.getActions = function () {
+exports.getActions = function (instance) {
 
 	let actions = {}
 
@@ -51,7 +51,7 @@ exports.getActions = function () {
 					type: 'colorpicker',
 					id: 'color',
 					label: 'Color',
-					default: rgb(255, 255, 255)
+					default: instance.rgb(255, 255, 255)
 				}
 			]
 		}
