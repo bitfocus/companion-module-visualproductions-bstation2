@@ -1,129 +1,148 @@
-let tcp           = require('../../tcp');
-let actions       = require('./actions');
-let instance_skel = require('../../instance_skel');
-let debug;
-let log;
+const { InstanceBase, runEntrypoint, InstanceStatus, TCPHelper } = require('@companion-module/base')
+const { GetActions } = require('./actions')
+const { GetFeedbacks } = require('./feedbacks')
 
-class instance extends instance_skel {
-
-	constructor(system, id, config) {
-		super(system, id, config)
-		this.release_time = 20; // ms to send button release
-		Object.assign(this, {
-			...actions,
-		});
-
-		this.actions()
+class instance extends InstanceBase {
+	constructor(internal) {
+		super(internal)
 	}
 
-	actions(system) {
-		this.setActions(this.getActions(this));
-	}
-
-	updateConfig(config) {
+	async configUpdated(config) {
 		this.config = config
-
 		if (this.tcp !== undefined) {
-			this.tcp.destroy();
-			delete this.tcp;
+			this.tcp.destroy()
+			delete this.tcp
 		}
 
 		if (this.socket !== undefined) {
-			this.socket.destroy();
-			delete this.socket;
+			this.socket.destroy()
+			delete this.socket
 		}
-		this.init_tcp();
-	};
+		this.init_tcp()
+	}
 
-	init() {
-		debug = this.debug;
-		log = this.log;
+	async init(config) {
+		this.config = config
+		this.buttonState = {
+			'1': false,
+			'2': false,
+			'3': false,
+			'4': false,
+			'5': false,
+			'6': false,
+		}
 
-		this.init_tcp();
-	};
+		this.setActionDefinitions(GetActions(this))
+		this.setFeedbackDefinitions(GetFeedbacks(this))
+		this.init_tcp()
+	}
 
 	init_tcp() {
 		if (this.tcp !== undefined) {
-			this.tcp.destroy();
-			delete this.tcp;
+			this.tcp.destroy()
+			delete this.tcp
 		}
 
-		this.status(this.STATE_WARNING, 'Connecting');
+		this.updateStatus(InstanceStatus.Connecting)
 
 		if (this.config.host !== undefined) {
-			this.tcp = new tcp(this.config.host, this.config.port);
+			this.tcp = new TCPHelper(this.config.host, this.config.port)
 
 			this.tcp.on('error', (err) => {
-				debug("Network error", err);
-				this.status(this.STATE_ERROR, err);
-				this.log('error', "Network error: " + err.message);
-			});
+				debug('Network error', err)
+				this.updateStatus(InstanceStatus.UnknownError, err)
+				this.log('error', 'Network error: ' + err.message)
+			})
 
 			// If we get data, thing should be good
 			this.tcp.on('data', (message) => {
-				switch(message.toString()) {
+				switch (message.toString()) {
 					case 'core-bu-0=On':
-						this.log('info', 'Button 1 pressed');
-						if(!!this.config.button1Bank && !!this.config.button1Button) {
-							this.press_button(this.config.button1Bank, this.config.button1Button)
-						}
-						break;
+						this.log('info', 'Button 1 pressed')
+						this.buttonState['1'] = true
+						this.checkFeedbacks('buttonsActive')
+						break
+					case 'core-bu-0=Off':
+						this.log('info', 'Button 1 Released')
+						this.buttonstate['1'] = false
+						this.checkFeedbacks('buttonsActive')
+						break
 					case 'core-bu-1=On':
-						this.log('info', 'Button 2 pressed');
-						if(!!this.config.button2Bank && !!this.config.button2Button) {
-							this.press_button(this.config.button2Bank, this.config.button2Button)
-						}
-						break;
+						this.log('info', 'Button 2 pressed')
+						this.buttonState['2'] = true
+						this.checkFeedbacks('buttonsActive')
+						break
+					case 'core-bu-1=Off':
+						this.log('info', 'Button 2 Released')
+						this.buttonstate['2'] = false
+						this.checkFeedbacks('buttonsActive')
+						break
 					case 'core-bu-2=On':
-						this.log('info', 'Button3 pressed');
-						if(!!this.config.button3Bank && !!this.config.button3Button) {
-							this.press_button(this.config.button3Bank, this.config.button3Button)
-						}
-						break;
+						this.log('info', 'Button 3 pressed')
+						this.buttonState['3'] = true
+						this.checkFeedbacks('buttonsActive')
+						break
+					case 'core-bu-2=Off':
+						this.log('info', 'Button 3 Released')
+						this.buttonstate['3'] = false
+						this.checkFeedbacks('buttonsActive')
+						break
 					case 'core-bu-3=On':
-						this.log('info', 'Button 4 pressed');
-						if(!!this.config.button4Bank && !!this.config.button4Button) {
-							this.press_button(this.config.button4Bank, this.config.button4Button)
-						}
-						break;
+						this.log('info', 'Button 4 pressed')
+						this.buttonState['4'] = true
+						this.checkFeedbacks('buttonsActive')
+						break
+					case 'core-bu-3=Off':
+						this.log('info', 'Button 4 Released')
+						this.buttonstate['4'] = false
+						this.checkFeedbacks('buttonsActive')
+						break
 					case 'core-bu-4=On':
-						this.log('info', 'Button 5 pressed');
-						if(!!this.config.button5Bank && !!this.config.button5Button) {
-							this.press_button(this.config.button5Bank, this.config.button5Button)
-						}
-						break;
+						this.log('info', 'Button 5 pressed')
+						this.buttonState['5'] = true
+						this.checkFeedbacks('buttonsActive')
+						break
+					case 'core-bu-4=Off':
+						this.log('info', 'Button 5 Released')
+						this.buttonstate['5'] = false
+						this.checkFeedbacks('buttonsActive')
+						break
 					case 'core-bu-5=On':
-						this.log('info', 'Button 6 pressed');
-						if(!!this.config.button6Bank && !!this.config.button6Button) {
-							this.press_button(this.config.button6Bank, this.config.button6Button)
-						}
-						break;
+						this.log('info', 'Button 6 pressed')
+						this.buttonState['6'] = true
+						this.checkFeedbacks('buttonsActive')
+						break
+					case 'core-bu-5=Off':
+						this.log('info', 'Button 6 Released')
+						this.buttonstate['6'] = false
+						this.checkFeedbacks('buttonsActive')
+						break
 				}
-				this.status(this.STATE_OK);
-			});
+				this.updateStatus(InstanceStatus.Ok)
+			})
 
 			this.tcp.on('status_change', (status, message) => {
-				this.status(status, message);
-			});
+				this.updateStatus(status, message)
+			})
 		}
-	};
+	}
 
 	// Return config fields for web config
-	config_fields() {
+	getConfigFields() {
 		return [
 			{
 				type: 'text',
 				id: 'info',
 				label: 'Information',
 				width: 12,
-				value: `This module controls the B-Station2 buttons`
+				value: `This module controls the B-Station2. Use Triggers and feedback to create an action based on which button is pressed`,
 			},
 			{
 				type: 'textinput',
 				id: 'host',
 				label: 'Target IP',
 				width: 6,
-				regex: this.REGEX_IP
+				regex: this.REGEX_IP,
 			},
 			{
 				type: 'textinput',
@@ -131,154 +150,37 @@ class instance extends instance_skel {
 				label: 'Target Port',
 				width: 2,
 				default: 7000,
-				regex: this.REGEX_PORT
+				regex: this.REGEX_PORT,
 			},
-			{
-				type: 'text',
-				id: 'info',
-				label: 'Information',
-				width: 12,
-				value: `Config which button on the streamdeck you want to control with the B-Station`
-			},
-			{
-				type: 'textinput',
-				id: 'button1Bank',
-				label: 'Button 1 Bank',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button1Button',
-				label: 'Button 1 Button',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button2Bank',
-				label: 'Button 2 Bank',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button2Button',
-				label: 'Button 2 Button',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button3Bank',
-				label: 'Button 3 Bank',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button3Button',
-				label: 'Button 3 Button',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button4Bank',
-				label: 'Button 4 Bank',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button4Button',
-				label: 'Button 4 Button',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button5Bank',
-				label: 'Button 5 Bank',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button5Button',
-				label: 'Button 5 Button',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button6Bank',
-				label: 'Button 6 Bank',
-				width: 2
-			},
-			{
-				type: 'textinput',
-				id: 'button6Button',
-				label: 'Button 6 Button',
-				width: 2
-			}
 		]
-	};
+	}
 
 	// When module gets deleted
 	destroy() {
 		if (this.socket !== undefined) {
-			this.socket.destroy();
+			this.socket.destroy()
 		}
 
 		if (this.tcp !== undefined) {
-			this.tcp.destroy();
+			this.tcp.destroy()
 		}
 
-		debug("destroy", this.id);;
-	};
-
-	press_button(bank, button) {
-		bank = parseInt(bank);
-		button = parseInt(button);
-
-		this.log('info', `Push button ${bank}.${button}`);
-		this.system.emit('bank_pressed', bank, button, true);
-
-		setTimeout(() => {
-			this.system.emit('bank_pressed', bank, button, false);
-			this.log('info', `Release button ${bank}.${button}`);
-		}, this.release_time);
+		debug('destroy', this.id)
 	}
 
 	action(action) {
-		let cmd;
+		let cmd
 
 		function c_to_rgb(c) {
 			let b = c % 256,
-				g_0 = (c % 65536 - b),
+				g_0 = (c % 65536) - b,
 				r_0 = c - g_0 - b,
 				g = g_0 / 256,
-				r = r_0 / 65536;
+				r = r_0 / 65536
 
-			return "#" + r.toString(16) + g.toString(16) + b.toString(16);
-		}
-
-		switch (action.action) {
-
-			case 'send':
-				cmd = unescape(action.options.id_send);
-				break;
-
-			case 'blink':
-				cmd = `core-blink`;
-				break;
-
-			case 'buttonLED':
-				cmd = `core-ld-${action.options.button}=${action.options.onOff}.0`;
-				break;
-
-			case 'buttonLEDColor':
-				cmd = `core-ld-${action.options.button}=${c_to_rgb(action.options.color)}`;
-				break;
-		}
-
-		let sendBuf = Buffer.from(cmd + '\n', 'latin1');
-
-		if (sendBuf != '') {
-			this.tcp.send(sendBuf);
+			return '#' + r.toString(16) + g.toString(16) + b.toString(16)
 		}
 	}
 }
 
-exports = module.exports = instance;
+runEntrypoint(instance, [])
